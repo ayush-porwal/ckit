@@ -63,10 +63,9 @@ actor CreationWindowFixture: ContainerServing {
         try check(
             form.windowShouldClose(form.window!),
             "Image verification can be cancelled by closing the window")
-        try await Task.sleep(for: .milliseconds(160))
-        try check(
-            form.messageLabel.stringValue.contains("ready to use"),
-            "Verification succeeds before entering a machine name")
+        try await waitUntil("Verification succeeds before entering a machine name") {
+            form.messageLabel.stringValue.contains("ready to use")
+        }
         try check(await client.imageCalls == 1, "Repeated Check does not duplicate verification")
         form.imagePicker.selectItem(at: 1)
         form.imageSelectionChanged()
@@ -82,11 +81,10 @@ actor CreationWindowFixture: ContainerServing {
         await client.configure(.image)
         form.imageField.stringValue = "alpine:missing"
         form.checkImage()
-        try await Task.sleep(for: .milliseconds(160))
-        try check(
+        try await waitUntil("Failed verification leaves an editable form") {
             form.messageLabel.stringValue.contains("Image tag not found")
-                && form.createButton.isEnabled,
-            "Failed verification leaves an editable form")
+                && form.createButton.isEnabled
+        }
         form.imagePicker.selectItem(at: 0)
         form.imageSelectionChanged()
         await client.configure(.none)
@@ -107,18 +105,18 @@ actor CreationWindowFixture: ContainerServing {
         try check(!form.windowShouldClose(form.window!), "Window stays open during creation")
         try await Task.sleep(for: .milliseconds(50))
         try render(form, appearance: .darkAqua, file: "Design/create-machine-busy.png")
-        try await Task.sleep(for: .milliseconds(450))
+        try await waitUntil("Failed creation preserves an editable form") {
+            !form.isCreating && form.createButton.isEnabled && form.nameField.isEnabled
+        }
         try check(await client.calls == 1, "Repeated submission creates only once")
-        try check(
-            form.createButton.isEnabled && form.nameField.isEnabled,
-            "Failed creation preserves an editable form")
         try render(form, appearance: .aqua, file: "Design/create-machine-error.png")
         await client.configure(.start)
         form.submit()
-        try await Task.sleep(for: .milliseconds(450))
-        try check(
-            form.createButton.title == "Done" && !form.nameField.isEnabled,
-            "Partial success switches to Done instead of offering duplicate creation")
+        try await waitUntil(
+            "Partial success switches to Done instead of offering duplicate creation"
+        ) {
+            form.createButton.title == "Done" && !form.nameField.isEnabled
+        }
         try check(
             form.messageLabel.stringValue.contains("Machine created"),
             "Boot failure explains partial success")
@@ -126,13 +124,11 @@ actor CreationWindowFixture: ContainerServing {
         let cancelledStore = ContainerStore(client: CreationWindowFixture())
         let cancelledForm = CreateMachineWindowController(store: cancelledStore)
         cancelledForm.checkImage()
-        try await Task.sleep(for: .milliseconds(25))
-        try check(cancelledStore.isBusy, "Check is active before cancellation")
+        try await waitUntil("Check is active before cancellation") { cancelledStore.isBusy }
         cancelledForm.close()
-        try await Task.sleep(for: .milliseconds(150))
-        try check(
-            !cancelledStore.isBusy && !cancelledForm.isCheckingImage,
-            "Closing the form cancels verification and releases busy state")
+        try await waitUntil("Closing the form cancels verification and releases busy state") {
+            !cancelledStore.isBusy && !cancelledForm.isCheckingImage
+        }
         print("Creation window checks passed; native controls rendered in both appearances.")
     }
 
@@ -171,5 +167,23 @@ actor CreationWindowFixture: ContainerServing {
     static func check(_ condition: Bool, _ message: String) throws {
         guard condition else { throw CLIError.failed("FAIL: \(message)") }
         print("PASS: \(message)")
+    }
+
+    // The fixture holds each image or create call open on purpose. A fixed sleep
+    // races that hold; CI scheduling can finish the hold after the sleep returns.
+    @MainActor static func waitUntil(
+        _ message: String, timeout: Duration = .seconds(2),
+        _ condition: @MainActor () async -> Bool
+    ) async throws {
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: timeout)
+        while true {
+            if await condition() {
+                print("PASS: \(message)")
+                return
+            }
+            if clock.now >= deadline { throw CLIError.failed("FAIL: \(message)") }
+            try await Task.sleep(for: .milliseconds(20))
+        }
     }
 }
