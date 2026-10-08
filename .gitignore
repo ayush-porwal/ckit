@@ -1,0 +1,34 @@
+# Generated builds and release packages
+/.build/
+/DerivedData/
+/dist/
+*.xcarchive/
+*.dSYM/
+*.dmg
+*.zip
+*.log
+
+# Local design explorations and generated previews
+/Design/
+
+# Personal Xcode and Swift Package Manager state
+xcuserdata/
+*.xcuserstate
+.swiftpm/
+
+# macOS and editor temporary files
+.DS_Store
+._*
+*.swp
+*.swo
+*~
+
+# Local environment and private signing credentials
+.env
+.env.*
+!.env.example
+*.p12
+*.p8
+*.key
+*.mobileprovision
+*.provisionprofile
