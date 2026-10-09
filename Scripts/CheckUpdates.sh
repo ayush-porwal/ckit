@@ -7,6 +7,7 @@ if [[ $# -ne 1 ]]; then
 fi
 app="$(cd "$1" && pwd)"
 project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+bash "$project_root/Scripts/CheckAppBundle.sh" "$app"
 stage="$(mktemp -d "${TMPDIR:-/tmp}/ckit-update-fixture.XXXXXX")"
 trap 'rm -rf "$stage"' EXIT
 # Archived frameworks omit compile-time headers; use the matching pinned SDK.

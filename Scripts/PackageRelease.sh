@@ -30,7 +30,11 @@ if [[ -e "$output" ]]; then
 fi
 mkdir -p .build
 package_stage="$(mktemp -d "$project_root/.build/release-stage.XXXXXX")"
+dmg_mount=""
 cleanup() {
+  if [[ -n "$dmg_mount" ]]; then
+    hdiutil detach "$dmg_mount" >/dev/null 2>&1 || true
+  fi
   rm -rf "$package_stage"
 }
 trap cleanup EXIT
@@ -48,7 +52,7 @@ xcodebuild \
   archive
 
 app="$package_stage/CKit.xcarchive/Products/Applications/Ckit.app"
-codesign --verify --deep --strict "$app"
+bash Scripts/CheckAppBundle.sh "$app"
 [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$app/Contents/Info.plist")" == "$version" ]]
 [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$app/Contents/Info.plist")" == "$build_number" ]]
 [[ "$(lipo -archs "$app/Contents/MacOS/Ckit")" == arm64 ]]
@@ -66,6 +70,12 @@ python3 -m venv "$package_stage/dmg-tools"
   -D "app=$app" -D "background=$package_stage/background.tiff" \
   "Ckit $version" "$output/$asset_name.dmg"
 hdiutil verify "$output/$asset_name.dmg"
+dmg_mount="$package_stage/dmg-check"
+mkdir -p "$dmg_mount"
+hdiutil attach -readonly -nobrowse -mountpoint "$dmg_mount" "$output/$asset_name.dmg"
+bash Scripts/CheckAppBundle.sh "$dmg_mount/Ckit.app"
+hdiutil detach "$dmg_mount"
+dmg_mount=""
 (
   cd "$output"
   shasum -a 256 "$asset_name.dmg" "$asset_name.zip" > SHA256SUMS.txt
