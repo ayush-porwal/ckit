@@ -45,13 +45,13 @@ struct GenerateIcons {
         try mark.representation(using: .png, properties: [:])!
             .write(to: root.appendingPathComponent("Design/puff-menubar.png"))
         let menuSVG = """
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>CKit Puff menu bar face</title><path d="\(svgPath(PuffArtwork.menuPath(in: CGRect(x: 0, y: 0, width: 24, height: 24))))" fill="none" stroke="currentColor" stroke-width="1.826" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Ckit Puff menu bar face</title><path d="\(svgPath(PuffArtwork.menuPath(in: CGRect(x: 0, y: 0, width: 24, height: 24))))" fill="none" stroke="currentColor" stroke-width="1.826" stroke-linecap="round" stroke-linejoin="round"/></svg>
             """
         try menuSVG.write(
             to: root.appendingPathComponent("Design/ckit-mark.svg"), atomically: true,
             encoding: .utf8)
         let appSVG = """
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><title>CKit Puff</title>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><title>Ckit Puff</title>
             <defs><linearGradient id="body" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#69746f"/><stop offset=".5" stop-color="#424d48"/><stop offset="1" stop-color="#252f2b"/></linearGradient><linearGradient id="mint" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#d2edcd"/><stop offset="1" stop-color="#81b299"/></linearGradient><filter id="shadow" x="-25%" y="-25%" width="150%" height="150%"><feDropShadow dx="0" dy="5" stdDeviation="2.5" flood-color="#152b20" flood-opacity=".25"/></filter></defs>
             <ellipse cx="128" cy="231" rx="75" ry="8" fill="#223c2d" opacity=".08"/>
             <g fill="url(#mint)"><rect x="88" y="193" width="28" height="30" rx="14"/><rect x="142" y="193" width="28" height="30" rx="14"/></g>

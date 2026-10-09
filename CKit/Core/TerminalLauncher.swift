@@ -20,7 +20,7 @@ enum TerminalLauncher {
             throw CLIError.failed("Terminal could not be found on this Mac.")
         }
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(
-            "CKit-Terminal", isDirectory: true)
+            "Ckit-Terminal", isDirectory: true)
         try FileManager.default.createDirectory(
             at: directory, withIntermediateDirectories: true,
             attributes: [.posixPermissions: 0o700])
@@ -35,7 +35,7 @@ enum TerminalLauncher {
                 try? FileManager.default.removeItem(at: file)
             }
         }
-        let file = directory.appendingPathComponent("CKit-\(UUID().uuidString).command")
+        let file = directory.appendingPathComponent("Ckit-\(UUID().uuidString).command")
         try script(executable: executable, machine: machine).write(
             to: file, atomically: true, encoding: .utf8)
         try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: file.path)

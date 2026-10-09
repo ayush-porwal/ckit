@@ -23,40 +23,48 @@ fi
 project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$project_root"
 output="$project_root/dist/releases/v$version"
-asset_name="CKit-$version-arm64"
+asset_name="Ckit-$version-arm64"
 if [[ -e "$output" ]]; then
   printf 'Output already exists: %s. Move it aside or choose a new version.\n' "$output" >&2
   exit 1
 fi
 mkdir -p .build
 package_stage="$(mktemp -d "$project_root/.build/release-stage.XXXXXX")"
-trap 'rm -rf "$package_stage"' EXIT
+cleanup() {
+  rm -rf "$package_stage"
+}
+trap cleanup EXIT
 
 xcodebuild \
   -project CKit.xcodeproj \
   -scheme CKit \
   -configuration Release \
   -destination 'generic/platform=macOS' \
-  -derivedDataPath .build/release-derived \
+  -derivedDataPath "$package_stage/DerivedData" \
   -archivePath "$package_stage/CKit.xcarchive" \
   ARCHS=arm64 ONLY_ACTIVE_ARCH=NO \
   MARKETING_VERSION="$version" CURRENT_PROJECT_VERSION="$build_number" \
   CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- \
   archive
 
-app="$package_stage/CKit.xcarchive/Products/Applications/CKit.app"
+app="$package_stage/CKit.xcarchive/Products/Applications/Ckit.app"
 codesign --verify --deep --strict "$app"
 [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$app/Contents/Info.plist")" == "$version" ]]
 [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$app/Contents/Info.plist")" == "$build_number" ]]
-[[ "$(lipo -archs "$app/Contents/MacOS/CKit")" == arm64 ]]
+[[ "$(lipo -archs "$app/Contents/MacOS/Ckit")" == arm64 ]]
 
-mkdir -p "$package_stage/dmg" "$output"
-ditto "$app" "$output/CKit.app"
-ditto -c -k --sequesterRsrc --keepParent "$output/CKit.app" "$output/$asset_name.zip"
-ditto "$app" "$package_stage/dmg/CKit.app"
-ln -s /Applications "$package_stage/dmg/Applications"
-hdiutil create -volname "CKit $version" -srcfolder "$package_stage/dmg" \
-  -fs HFS+ -format UDZO "$output/$asset_name.dmg"
+mkdir -p "$output"
+ditto "$app" "$output/Ckit.app"
+ditto -c -k --sequesterRsrc --keepParent "$output/Ckit.app" "$output/$asset_name.zip"
+swiftc -parse-as-library CKit/Interface/PuffArtwork.swift Scripts/GenerateDMGArtwork.swift \
+  -o "$package_stage/generate-dmg-artwork"
+"$package_stage/generate-dmg-artwork" "$package_stage/background.tiff"
+python3 -m venv "$package_stage/dmg-tools"
+"$package_stage/dmg-tools/bin/python3" -m pip install --disable-pip-version-check \
+  -r Scripts/dmg-requirements.txt
+"$package_stage/dmg-tools/bin/dmgbuild" -s Scripts/DMGSettings.py \
+  -D "app=$app" -D "background=$package_stage/background.tiff" \
+  "Ckit $version" "$output/$asset_name.dmg"
 hdiutil verify "$output/$asset_name.dmg"
 (
   cd "$output"

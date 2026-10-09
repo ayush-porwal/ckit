@@ -61,7 +61,7 @@ private final class CommandExecution: @unchecked Sendable {
             }
             do {
                 let directory = FileManager.default.temporaryDirectory
-                    .appendingPathComponent("CKit-\(UUID().uuidString)", isDirectory: true)
+                    .appendingPathComponent("Ckit-\(UUID().uuidString)", isDirectory: true)
                 self.directory = directory
                 try FileManager.default.createDirectory(
                     at: directory, withIntermediateDirectories: true,

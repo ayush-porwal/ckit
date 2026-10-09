@@ -1,0 +1,4 @@
+// Public verification key only. The private key stays in Keychain / CI secrets.
+CKIT_UPDATE_FEED_URL = https:/$()/github.com/ayush-porwal/ckit/releases/latest/download/appcast.xml
+CKIT_UPDATE_PUBLIC_KEY = wWocVqNZ4oZhIfvlB5fyi1wJSLl43bELcdFPHhz+wU4=
+INFOPLIST_FILE = Config/Info.plist

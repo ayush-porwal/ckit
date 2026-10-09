@@ -15,9 +15,19 @@ struct CKitApp {
 @MainActor
 final class CKitApplicationDelegate: NSObject, NSApplicationDelegate {
     private var controller: ContainerMenuController?
+    private var store: ContainerStore?
+    private var updates: UpdateController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApplication.shared.applicationIconImage = BrandIcon.applicationImage
-        controller = ContainerMenuController(store: ContainerStore())
+        let store = ContainerStore()
+        self.store = store
+        let updates = UpdateController(store: store)
+        self.updates = updates
+        controller = ContainerMenuController(store: store, updates: updates)
+    }
+
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        store?.operation != nil ? .terminateCancel : .terminateNow
     }
 }

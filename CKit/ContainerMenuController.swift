@@ -1,6 +1,13 @@
 import AppKit
 import Observation
 
+@MainActor
+protocol UpdateChecking: AnyObject {
+    var canCheckForUpdates: Bool { get }
+    var automaticallyChecksForUpdates: Bool { get set }
+    func checkForUpdates()
+}
+
 // Standard NSMenu items let macOS own the material, metrics, and interaction.
 @MainActor
 final class ContainerMenuController: NSObject, NSMenuDelegate {
@@ -9,11 +16,12 @@ final class ContainerMenuController: NSObject, NSMenuDelegate {
         case machine(String)
         case terminal(String)
         case deleteMachine(String)
-        case copyError, dismissError, quit
+        case copyError, dismissError, checkForUpdates, automaticUpdates, quit
     }
 
-    let menu = NSMenu(title: "CKit")
+    let menu = NSMenu(title: "Ckit")
     private let store: ContainerStore
+    private let updates: (any UpdateChecking)?
     private var statusItem: NSStatusItem?
     private var creationWindow: CreateMachineWindowController?
     private var machineItems: [String: MachineItems] = [:]
@@ -40,10 +48,17 @@ final class ContainerMenuController: NSObject, NSMenuDelegate {
     private lazy var dismissErrorItem = item("Dismiss Error", action: .dismissError, icon: .close)
     private let errorDivider = NSMenuItem.separator()
     private lazy var retryItem = item("Retry", action: .refresh, icon: .refresh, key: "r")
-    private lazy var quitItem = item("Quit CKit", action: .quit, icon: .quit, key: "q")
+    private lazy var checkUpdatesItem = item("Check for Updates…", action: .checkForUpdates)
+    private lazy var automaticUpdatesItem = item(
+        "Automatically Check for Updates", action: .automaticUpdates)
+    private lazy var quitItem = item("Quit Ckit", action: .quit, icon: .quit, key: "q")
 
-    init(store: ContainerStore, installsStatusItem: Bool = true) {
+    init(
+        store: ContainerStore, installsStatusItem: Bool = true,
+        updates: (any UpdateChecking)? = nil
+    ) {
         self.store = store
+        self.updates = updates
         super.init()
         menu.autoenablesItems = false
         menu.minimumWidth = 280
@@ -51,8 +66,8 @@ final class ContainerMenuController: NSObject, NSMenuDelegate {
         if installsStatusItem {
             let status = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
             status.button?.image = BrandIcon.menuBarImage
-            status.button?.toolTip = "CKit — container machines"
-            status.button?.setAccessibilityLabel("CKit — container machines")
+            status.button?.toolTip = "Ckit — container machines"
+            status.button?.setAccessibilityLabel("Ckit — container machines")
             status.menu = menu
             statusItem = status
             Task { await store.refresh() }
@@ -98,6 +113,10 @@ final class ContainerMenuController: NSObject, NSMenuDelegate {
         retryItem.isEnabled = !store.isBusy
         createItem.isEnabled = !store.isBusy
         quitItem.isEnabled = store.operation == nil
+        checkUpdatesItem.isEnabled = !store.isBusy && updates?.canCheckForUpdates == true
+        automaticUpdatesItem.isEnabled = updates?.canCheckForUpdates == true
+        automaticUpdatesItem.state =
+            updates?.automaticallyChecksForUpdates == true ? .on : .off
         [placeholder, errorDetail].forEach { $0.isEnabled = false }
 
         var rows = [serviceItem, serviceDivider, machinesHeader]
@@ -165,6 +184,9 @@ final class ContainerMenuController: NSObject, NSMenuDelegate {
             || (store.service == .running && !store.hasLoadedMachines && !store.isRefreshing)
         {
             rows.append(retryItem)
+        }
+        if updates != nil {
+            rows += [checkUpdatesItem, automaticUpdatesItem, .separator()]
         }
         rows.append(quitItem)
         reconcile(menu, with: rows)
@@ -252,6 +274,13 @@ final class ContainerMenuController: NSObject, NSMenuDelegate {
         case .dismissError:
             store.errorMessage = nil
             store.notice = nil
+        case .checkForUpdates:
+            guard !store.isBusy, updates?.canCheckForUpdates == true else { return }
+            updates?.checkForUpdates()
+        case .automaticUpdates:
+            guard let updates, updates.canCheckForUpdates else { return }
+            updates.automaticallyChecksForUpdates.toggle()
+            updateMenu()
         case .quit: NSApplication.shared.terminate(nil)
         }
     }

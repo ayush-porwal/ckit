@@ -18,12 +18,14 @@
 		C00000000000000000000008 /* PuffArtwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000008 /* PuffArtwork.swift */; };
 		D00000000000000000000004 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000003 /* Assets.xcassets */; };
 		C00000000000000000000009 /* CreateMachineWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000009 /* CreateMachineWindow.swift */; };
+		E00000000000000000000001 /* UpdateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00000000000000000000002 /* UpdateController.swift */; };
+		E00000000000000000000003 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = E00000000000000000000004 /* Sparkle */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		A00000000000000000000003 /* CKitApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CKitApp.swift; sourceTree = "<group>"; };
 		A00000000000000000000004 /* ContainerMenuController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerMenuController.swift; sourceTree = "<group>"; };
-		A00000000000000000000005 /* CKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A00000000000000000000005 /* Ckit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Ckit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A00000000000000000000006 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		B00000000000000000000001 /* ContainerClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerClient.swift; sourceTree = "<group>"; };
 		B00000000000000000000002 /* ContainerStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerStore.swift; sourceTree = "<group>"; };
@@ -35,6 +37,9 @@
 		D00000000000000000000003 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D00000000000000000000005 /* LEARN.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LEARN.md; sourceTree = "<group>"; };
 		B00000000000000000000009 /* CreateMachineWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateMachineWindow.swift; sourceTree = "<group>"; };
+		E00000000000000000000002 /* UpdateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateController.swift; sourceTree = "<group>"; };
+		E00000000000000000000006 /* Updates.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Updates.xcconfig; sourceTree = "<group>"; };
+		E00000000000000000000008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -42,6 +47,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E00000000000000000000003 /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,6 +59,7 @@
 			children = (
 				A00000000000000000000008 /* CKit */,
 				A00000000000000000000006 /* README.md */,
+				E00000000000000000000007 /* Config */,
 				D00000000000000000000005 /* LEARN.md */,
 				A00000000000000000000009 /* Products */,
 			);
@@ -63,6 +70,7 @@
 			children = (
 				A00000000000000000000003 /* CKitApp.swift */,
 				A00000000000000000000004 /* ContainerMenuController.swift */,
+				E00000000000000000000002 /* UpdateController.swift */,
 				D00000000000000000000001 /* Core */,
 				D00000000000000000000002 /* Interface */,
 				D00000000000000000000003 /* Assets.xcassets */,
@@ -73,7 +81,7 @@
 		A00000000000000000000009 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A00000000000000000000005 /* CKit.app */,
+				A00000000000000000000005 /* Ckit.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -100,6 +108,15 @@
 			path = Interface;
 			sourceTree = "<group>";
 		};
+		E00000000000000000000007 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				E00000000000000000000006 /* Updates.xcconfig */,
+				E00000000000000000000008 /* Info.plist */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -116,8 +133,9 @@
 			dependencies = (
 			);
 			name = CKit;
-			productName = CKit;
-			productReference = A00000000000000000000005 /* CKit.app */;
+			packageProductDependencies = (E00000000000000000000004 /* Sparkle */);
+			productName = Ckit;
+			productReference = A00000000000000000000005 /* Ckit.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -144,6 +162,7 @@
 			);
 			mainGroup = A00000000000000000000007;
 			productRefGroup = A00000000000000000000009 /* Products */;
+			packageReferences = (E00000000000000000000005 /* Sparkle */);
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -170,6 +189,7 @@
 			files = (
 				A00000000000000000000001 /* CKitApp.swift in Sources */,
 				A00000000000000000000002 /* ContainerMenuController.swift in Sources */,
+				E00000000000000000000001 /* UpdateController.swift in Sources */,
 				C00000000000000000000001 /* ContainerClient.swift in Sources */,
 				C00000000000000000000002 /* ContainerStore.swift in Sources */,
 				C00000000000000000000003 /* Models.swift in Sources */,
@@ -214,6 +234,7 @@
 		};
 		A00000000000000000000013 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E00000000000000000000006 /* Updates.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "-";
@@ -225,16 +246,17 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Ckit;
 				INFOPLIST_KEY_LSUIElement = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 CKit";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 Ckit";
 				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.local.ckit;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Ckit;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
 			name = Debug;
 		};
 		A00000000000000000000014 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E00000000000000000000006 /* Updates.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "-";
@@ -246,15 +268,31 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Ckit;
 				INFOPLIST_KEY_LSUIElement = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 CKit";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 Ckit";
 				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.local.ckit;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Ckit;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E00000000000000000000005 /* Sparkle */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {kind = exactVersion; version = 2.10.0; };
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E00000000000000000000004 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E00000000000000000000005 /* Sparkle */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCConfigurationList section */
 		A0000000000000000000000F /* Build configuration list for PBXProject "CKit" */ = {

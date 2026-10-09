@@ -1,4 +1,4 @@
-name: Release CKit
+name: Release Ckit
 
 on:
   workflow_dispatch:
@@ -51,6 +51,15 @@ jobs:
           printf 'version=%s\ntag=v%s\n' "$version" "$version" >> "$GITHUB_OUTPUT"
           xcodebuild -version
 
+      - name: Validate update signing secret
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          if [[ -z "$SPARKLE_PRIVATE_KEY" ]]; then
+            printf 'Set the SPARKLE_PRIVATE_KEY repository secret before publishing updates. See Docs/Releasing.md.\n' >&2
+            exit 1
+          fi
+
       - name: Run core tests
         run: swift test --scratch-path .build/tests
 
@@ -67,6 +76,17 @@ jobs:
           RELEASE_VERSION: ${{ steps.version.outputs.version }}
         run: bash Scripts/PackageRelease.sh "$RELEASE_VERSION" "$GITHUB_RUN_NUMBER"
 
+      - name: Check update controls and relaunch safety
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: bash Scripts/CheckUpdates.sh "dist/releases/v$RELEASE_VERSION/Ckit.app"
+
+      - name: Generate signed update feed
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: bash Scripts/GenerateAppcast.sh "$RELEASE_VERSION" "dist/releases/v$RELEASE_VERSION"
+
       - name: Tag and publish release assets
         env:
           GH_TOKEN: ${{ github.token }}
@@ -74,11 +94,11 @@ jobs:
           RELEASE_TAG: ${{ steps.version.outputs.tag }}
         run: |
           output="dist/releases/$RELEASE_TAG"
-          asset="CKit-$RELEASE_VERSION-arm64"
+          asset="Ckit-$RELEASE_VERSION-arm64"
           cat > "$output/release-notes.md" <<NOTES
-          CKit $RELEASE_VERSION for Apple Silicon Macs running macOS 26 or later.
+          Ckit $RELEASE_VERSION for Apple Silicon Macs running macOS 26 or later.
 
-          Open the DMG and drag CKit to Applications, or unzip the app and move it there. Apple’s container CLI must be installed separately.
+          Open the DMG and drag Ckit to Applications, or unzip the app and move it there. Apple’s container CLI must be installed separately.
 
           This build uses ad hoc signing and is not notarized. If macOS blocks a downloaded copy, use System Settings → Privacy & Security → Open Anyway for a build you trust.
 
@@ -86,10 +106,10 @@ jobs:
           NOTES
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git tag -a "$RELEASE_TAG" "$GITHUB_SHA" -m "CKit $RELEASE_TAG"
+          git tag -a "$RELEASE_TAG" "$GITHUB_SHA" -m "Ckit $RELEASE_TAG"
           git push origin "refs/tags/$RELEASE_TAG"
           gh release create "$RELEASE_TAG" \
-            "$output/$asset.dmg" "$output/$asset.zip" "$output/SHA256SUMS.txt" \
+            "$output/$asset.dmg" "$output/$asset.zip" "$output/SHA256SUMS.txt" "$output/appcast.xml" \
             --repo "$GITHUB_REPOSITORY" --verify-tag --draft \
-            --title "CKit $RELEASE_TAG" --notes-file "$output/release-notes.md"
+            --title "Ckit $RELEASE_TAG" --notes-file "$output/release-notes.md"
           gh release edit "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --draft=false --latest

@@ -62,7 +62,7 @@ struct ContainerClient: ContainerServing {
         }
         if result.exitCode != 0 { throw failure(for: result) }
         throw CLIError.invalidResponse(
-            "Could not read service status. CKit requires container 1.5.0 or a compatible JSON format."
+            "Could not read service status. Ckit requires container 1.5.0 or a compatible JSON format."
         )
     }
 
@@ -132,7 +132,7 @@ struct ContainerClient: ContainerServing {
             return .init(reference: image.configuration.name, wasPrepared: false)
         }
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(
-            "CKit-Ubuntu-\(UUID().uuidString)")
+            "Ckit-Ubuntu-\(UUID().uuidString)")
         try FileManager.default.createDirectory(
             at: directory, withIntermediateDirectories: true,
             attributes: [.posixPermissions: 0o700])

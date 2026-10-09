@@ -195,7 +195,7 @@ final class ContainerStore {
                 )
             }
             operation = .createMachine(request.name)
-            // Use a fresh list, including machines created outside CKit.
+            // Use a fresh list, including machines created outside Ckit.
             let existing = try await client.machines()
             guard !existing.contains(where: { $0.id == request.name }) else {
                 throw CLIError.failed(

@@ -45,8 +45,8 @@ actor MenuFixtureClient: ContainerServing {
         let root = controller.menu
         try check(root.items.allSatisfy { $0.view == nil }, "Root uses standard native menu items")
         try check(
-            root.items.last?.title == "Quit CKit"
-                && !root.items.contains { $0.title == "About CKit" },
+            root.items.last?.title == "Quit Ckit"
+                && !root.items.contains { $0.title == "About Ckit" },
             "Quit is last and About is omitted")
         try check(
             !root.items.contains {
@@ -114,7 +114,7 @@ actor MenuFixtureClient: ContainerServing {
             !root.items[0].isEnabled && root.items[0].title == "Stopping Service…",
             "Busy service action is disabled")
         try check(
-            root.items.contains { $0.title == "Quit CKit" && !$0.isEnabled },
+            root.items.contains { $0.title == "Quit Ckit" && !$0.isEnabled },
             "Quit is disabled during an action")
         try check(
             root.items.contains { $0.title == "Create Machine…" && !$0.isEnabled },
