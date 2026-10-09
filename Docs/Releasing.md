@@ -80,7 +80,20 @@ notarization (including Sparkle's embedded helpers); that requires your Apple
 Developer certificate and notarization credentials. Ed25519 update signing is
 separate from Apple's app signing.
 
+The current ad hoc builds use `Config/AdHoc.entitlements` to disable library
+validation: ad hoc signatures have no Apple Team ID, so hardened runtime would
+otherwise reject Sparkle at launch. Remove this exception when the app and its
+embedded framework are signed with the same Developer ID team.
+
 ## Verification and cleanup
+
+`CheckAppBundle.sh` checks the actual app executable's runtime framework search
+path, embedded Sparkle framework, and code signature before packaging. This
+also runs before the updater fixture, which has its own executable.
+It invokes `--check-launch` to verify that macOS actually loads the executable
+and its frameworks, then exits before starting UI, containers, or the updater.
+Packaging repeats this check on the app inside the finished DMG to catch any
+metadata changes that could invalidate its signature.
 
 `CheckUpdates.sh` uses a separate bundle identifier, disables automatic checks,
 and never downloads or installs an update. It deletes its fixture on exit.

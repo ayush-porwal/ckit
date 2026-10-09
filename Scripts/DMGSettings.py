@@ -22,4 +22,4 @@ icon_locations = {
     # Keep artwork out of the layout even when Finder's Show Hidden Files is on.
     ".background.tiff": (174, 1024),
 }
-hide_extensions = ["Ckit.app"]
+# Do not set FinderInfo on the app: it invalidates strict code-signature checks.

@@ -4,6 +4,11 @@ import AppKit
 struct CKitApp {
     @MainActor
     static func main() {
+        // Exercise dyld and code signing without starting UI, containers, or updates.
+        if CommandLine.arguments.contains("--check-launch") {
+            print("Ckit launch check passed.")
+            return
+        }
         let app = NSApplication.shared
         app.setActivationPolicy(.accessory)
         let delegate = CKitApplicationDelegate()
